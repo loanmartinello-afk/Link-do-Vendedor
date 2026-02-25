@@ -2,6 +2,8 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal do Vendedor</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
@@ -37,33 +39,38 @@
 </div>
 
 <script>
-    function enviar() {
+    async function enviar() {
         const cod = document.getElementById('cod').value.trim();
         if(!cod) { alert("Por favor, digite o código do vendedor!"); return; }
 
-        // Ajuste do Link seguindo o seu modelo: parceiros/[CODIGO]?redir=[URL_PRODUTO]
         const urlProduto = "https://www.martinello.com.br/caixa-de-som-jbl-boombox-4-bluetooth-preto-80878";
         const linkFinal = "https://www.martinello.com.br/parceiros/" + cod + "?redir=" + urlProduto;
 
-        // Texto da oferta usando Crase ( ` ) para permitir várias linhas sem quebrar o código
-        const textoDaOferta = `🔥 Oferta Especial – Super Big Friday Martinello! 🔥
+        const textoDaOferta = `🔥 Oferta Especial – Super Big Friday Martinello! 🔥\n\nA Caixa de Som JBL Boombox chegou com um precinho imperdível!\n\n👉 Compre aqui: ${linkFinal}`;
 
-A Caixa de Som Waaw Hyperboom 1000 Bluetooth chegou com um precinho que você não pode perder!
+        // BUSCAR A IMAGEM QUE VOCÊ SUBIU NO GITHUB
+        const imageElement = document.querySelector('img');
+        const imageUrl = imageElement.src;
 
-🔊 Som potente
-🔋 Excelente autonomia
-📱 Conexão Bluetooth
-🎉 Perfeita para festas, encontros e seu dia a dia
+        try {
+            const response = await fetch(imageUrl);
+            const blob = await response.blob();
+            const file = new File([blob], 'oferta.png', { type: blob.type });
 
-E o melhor: todo o estoque em até 12x sem juros!
-
-Quer garantir a sua? Me chama aqui que já separo pra você! 🙌🛍️
-
-👉 Compre aqui: ${linkFinal}`;
-
-        // Codifica e envia
-        const mensagemPronta = window.encodeURIComponent(textoDaOferta);
-        window.location.href = "https://wa.me/?text=" + mensagemPronta;
+            // Tenta compartilhar pelo sistema do celular (Foto + Texto)
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    text: textoDaOferta
+                });
+            } else {
+                // Caso o navegador seja antigo, envia só o texto como antes
+                window.location.href = "https://wa.me/?text=" + window.encodeURIComponent(textoDaOferta);
+            }
+        } catch (err) {
+            // Se der erro na imagem, envia só o texto para não travar
+            window.location.href = "https://wa.me/?text=" + window.encodeURIComponent(textoDaOferta);
+        }
     }
 </script>
 
