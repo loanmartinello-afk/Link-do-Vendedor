@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal do Vendedor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 20px; background: #f4f4f4; }
+        .card { background: white; padding: 20px; border-radius: 15px; max-width: 400px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        /* Aplicando a fonte Bebas Neue Bold no Título */
+        h2 { 
+            font-family: 'Bebas Neue', sans-serif; 
+            font-weight: bold; 
+            font-size: 40px; 
+            color: #e31d1a; /* Cor de destaque (opcional) */
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        img { width: 100%; border-radius: 10px; margin-bottom: 15px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
+        button { background: #25D366; color: white; border: none; padding: 15px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        button:hover { background: #128C7E; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>OFERTA!!</h2>
+    <img src="produto.png" alt="Imagem do Produto">
+    
+    <input type="text" id="cod" placeholder="DIGITE SEU CÓDIGO">
+    <button onclick="enviar()">GERAR E ENVIAR NO WHATSAPP</button>
+</div>
+
+<script>
+    function enviar() {
+        const cod = document.getElementById('cod').value.trim();
+        if(!cod) { alert("Por favor, digite o código do vendedor!"); return; }
+
+        // Ajuste do Link seguindo o seu modelo: parceiros/[CODIGO]?redir=[URL_PRODUTO]
+        const urlProduto = "https://www.martinello.com.br/caixa-de-som-jbl-boombox-4-bluetooth-preto-80878";
+        const linkFinal = "https://www.martinello.com.br/parceiros/" + cod + "?redir=" + urlProduto;
+
+        // Texto da oferta usando Crase ( ` ) para permitir várias linhas sem quebrar o código
+        const textoDaOferta = `🔥 Oferta Especial – Super Big Friday Martinello! 🔥
+
+A Caixa de Som Waaw Hyperboom 1000 Bluetooth chegou com um precinho que você não pode perder!
+
+🔊 Som potente
+🔋 Excelente autonomia
+📱 Conexão Bluetooth
+🎉 Perfeita para festas, encontros e seu dia a dia
+
+E o melhor: todo o estoque em até 12x sem juros!
+
+Quer garantir a sua? Me chama aqui que já separo pra você! 🙌🛍️
+
+👉 Compre aqui: ${linkFinal}`;
+
+        // Codifica e envia
+        const mensagemPronta = window.encodeURIComponent(textoDaOferta);
+        window.location.href = "https://wa.me/?text=" + mensagemPronta;
+    }
+</script>
+
+</body>
+</html>
