@@ -541,7 +541,7 @@ async function enviar() {
         .replace('[LINK]', linkFinal)
         .replace('[CODIGO]', codInput);
 
-  // RASTREIO INVISÍVEL - VERSÃO CORRIGIDA
+ // RASTREIO INVISÍVEL - APENAS UM MÉTODO (SEM DUPLICAÇÃO)
 try {
     if(CONFIG.googleFormUrl.includes("formResponse")) {
         const formData = new FormData();
@@ -550,26 +550,18 @@ try {
         
         console.log("📤 Enviando rastreio:", { 
             codigo: codInput, 
-            navegador: navegador,
-            url: CONFIG.googleFormUrl 
+            navegador: navegador
         });
         
-        // Usando fetch com modo 'no-cors' (não vamos esperar resposta)
+        // ÚNICO ENVIO - apenas fetch (recomendado)
         fetch(CONFIG.googleFormUrl, {
             method: 'POST',
             mode: 'no-cors',
             body: formData
-        }).then(() => {
-            console.log("✅ Rastreio enviado com sucesso (modo no-cors)");
         }).catch(error => {
-            console.error("❌ Erro no fetch:", error);
+            console.error("❌ Erro no rastreio:", error);
         });
         
-        // Também tenta com sendBeacon como fallback
-        if (navigator.sendBeacon) {
-            const beaconSent = navigator.sendBeacon(CONFIG.googleFormUrl, formData);
-            console.log("📡 SendBeacon enviado:", beaconSent ? "Sim" : "Não");
-        }
     }
 } catch (error) {
     console.error("❌ Erro crítico no rastreio:", error);
