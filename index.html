@@ -422,124 +422,195 @@
 </a>
 
 <script>
-    // --- CONFIGURAÇÃO DE RASTREIO ---
-    const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfdheHBbGMCLIXXAeM0b8rTbpextHznj6BDS6lKGLN9ZMjd4g/formResponse";
-    const ENTRY_ID_CODIGO = "entry.2003110990";
-    const ENTRY_ID_BROWSER = "entry.200360405";
+   // ============================================
+// CONFIGURAÇÕES - COLE SEU TEXTO AQUI
+// ============================================
 
-    // Dark Mode
-    function toggleDarkMode() {
-        document.body.classList.toggle('dark-mode');
-        const icon = document.querySelector('.dark-mode-toggle i');
-        if(document.body.classList.contains('dark-mode')) {
-            icon.classList.remove('fa-moon');
-            icon.classList.add('fa-sun');
-        } else {
-            icon.classList.remove('fa-sun');
-            icon.classList.add('fa-moon');
-        }
+const CONFIG = {
+    // Google Forms (RASTREIO) - Não mexa aqui
+    googleFormUrl: "https://docs.google.com/forms/d/e/1FAIpQLSfdheHBbGMCLIXXAeM0b8rTbpextHznj6BDS6lKGLN9ZMjd4g/formResponse",
+    entryIdCodigo: "entry.2003110990",
+    entryIdBrowser: "entry.200360405",
+    
+    // ========================================
+    // ÁREA DE PERSONALIZAÇÃO - SÓ MEXER AQUI
+    // ========================================
+    
+    // 1. LINK DO PRODUTO (só trocar a URL)
+    urlProduto: "https://www.martinello.com.br/caixa-de-som-jbl-boombox-4-bluetooth-preto-80878",
+    
+    // 2. TEXTO DA OFERTA - COLE AQUI EXATAMENTE COMO QUER QUE APAREÇA
+    // Use [LINK] no lugar onde o link do produto deve ir
+    // Use [CODIGO] no lugar onde o código do vendedor deve aparecer
+    textoOferta: `🔥 OFERTA ESPECIAL – SUPER BIG FRIDAY MARTINELLO! 🔥
+
+Caixa de Som JBL Boombox 4
+
+A Caixa de Som JBL Boombox chegou com um precinho imperdível!
+
+👉 Compre aqui: [LINK]
+
+🏷️ Código do vendedor: [CODIGO]`,
+    
+    // 3. WHATSAPP DE SUPORTE (só trocar o número)
+    suporteWhatsApp: "556598115091",
+    mensagemSuporte: "Olá! Preciso de ajuda com o Portal do Vendedor Martinello"
+};
+
+// ============================================
+// FUNÇÕES (NÃO MEXER DAQUI PARA BAIXO)
+// ============================================
+
+// Dark Mode
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    const icon = document.querySelector('.dark-mode-toggle i');
+    if(document.body.classList.contains('dark-mode')) {
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
+    } else {
+        icon.classList.remove('fa-sun');
+        icon.classList.add('fa-moon');
+    }
+}
+
+// Função melhorada para identificar o navegador
+function getBrowserName() {
+    const ua = navigator.userAgent;
+    const platform = navigator.platform;
+    
+    // Detecção específica para iPhone/iPad
+    const isIOS = /iPad|iPhone|iPod/.test(ua) || (platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    
+    // Detecção para iOS
+    if (isIOS) {
+        if (ua.includes('CriOS')) return 'Chrome (iOS)';
+        if (ua.includes('FxiOS')) return 'Firefox (iOS)';
+        if (ua.includes('EdgiOS')) return 'Edge (iOS)';
+        return 'Safari (iOS)';
+    }
+    
+    // Detecção para Android
+    if (ua.includes('Android')) {
+        if (ua.includes('Chrome') && !ua.includes('Edg')) return 'Chrome (Android)';
+        if (ua.includes('SamsungBrowser')) return 'Samsung Internet (Android)';
+        if (ua.includes('Firefox')) return 'Firefox (Android)';
+        if (ua.includes('Edg')) return 'Edge (Android)';
+        return 'Navegador Padrão (Android)';
+    }
+    
+    // Detecção para Desktop
+    if (ua.includes('Chrome') && !ua.includes('Edg')) return 'Chrome (Desktop)';
+    if (ua.includes('Safari') && !ua.includes('Chrome') && !ua.includes('Edg')) return 'Safari (Desktop)';
+    if (ua.includes('Edg')) return 'Edge (Desktop)';
+    if (ua.includes('Firefox')) return 'Firefox (Desktop)';
+    if (ua.includes('OPR') || ua.includes('Opera')) return 'Opera (Desktop)';
+    
+    return 'Outro/Desconhecido';
+}
+
+// Função para mostrar/ocultar loading
+function setLoading(isLoading) {
+    const btn = document.getElementById('btnEnviar');
+    const btnText = btn.querySelector('.btn-text');
+    
+    if(isLoading) {
+        btn.disabled = true;
+        btnText.innerHTML = '<span class="spinner"></span>Processando...';
+    } else {
+        btn.disabled = false;
+        btnText.textContent = 'GERAR E ENVIAR NO WHATSAPP';
+    }
+}
+
+// Função principal
+async function enviar() {
+    const codInput = document.getElementById('cod').value.trim().toUpperCase();
+    if(!codInput) { 
+        alert("Por favor, digite o código!"); 
+        return; 
     }
 
-    // Função para identificar o navegador
-    function getBrowserName() {
-        const ua = navigator.userAgent;
-        if (ua.includes("SamsungBrowser")) return "Samsung Internet";
-        if (ua.includes("Chrome") && !ua.includes("Edg")) return "Chrome";
-        if (ua.includes("Safari") && !ua.includes("Chrome") && !ua.includes("Edg")) return "Safari";
-        if (ua.includes("Edg")) return "Edge";
-        if (ua.includes("Firefox")) return "Firefox";
-        if (ua.includes("OPR") || ua.includes("Opera")) return "Opera";
-        return "Outro/Desconhecido";
-    }
+    setLoading(true);
 
-    // Função para mostrar/ocultar loading
-    function setLoading(isLoading) {
-        const btn = document.getElementById('btnEnviar');
-        const btnText = btn.querySelector('.btn-text');
-        
-        if(isLoading) {
-            btn.disabled = true;
-            btnText.innerHTML = '<span class="spinner"></span>Processando...';
-        } else {
-            btn.disabled = false;
-            btnText.textContent = 'GERAR E ENVIAR NO WHATSAPP';
-        }
-    }
+    const navegador = getBrowserName();
+    
+    // Monta o link final com o código do vendedor
+    const linkFinal = `https://www.martinello.com.br/parceiros/${codInput}?redir=${encodeURIComponent(CONFIG.urlProduto)}`;
+    
+    // Substitui [LINK] e [CODIGO] no texto
+    const textoDaOferta = CONFIG.textoOferta
+        .replace('[LINK]', linkFinal)
+        .replace('[CODIGO]', codInput);
 
-    async function enviar() {
-        const codInput = document.getElementById('cod').value.trim().toUpperCase();
-        if(!codInput) { 
-            alert("Por favor, digite o código!"); 
-            return; 
-        }
-
-        setLoading(true);
-
-        const navegador = getBrowserName();
-        
-        // Links da Martinello
-        const urlProduto = "https://www.martinello.com.br/caixa-de-som-jbl-boombox-4-bluetooth-preto-80878";
-        const linkFinal = `https://www.martinello.com.br/parceiros/${codInput}?redir=${encodeURIComponent(urlProduto)}`;
-        const textoDaOferta = `🔥 Oferta Especial – Super Big Friday Martinello! 🔥\n\nA Caixa de Som JBL Boombox chegou com um precinho imperdível!\n\n👉 Compre aqui: ${linkFinal}`;
-
-        // RASTREIO INVISÍVEL
-        try {
-            if(GOOGLE_FORM_URL.includes("formResponse")) {
-                const formData = new FormData();
-                formData.append(ENTRY_ID_CODIGO, codInput);
-                formData.append(ENTRY_ID_BROWSER, navegador);
-                
-                await fetch(GOOGLE_FORM_URL, {
+    // RASTREIO INVISÍVEL
+    try {
+        if(CONFIG.googleFormUrl.includes("formResponse")) {
+            const formData = new FormData();
+            formData.append(CONFIG.entryIdCodigo, codInput);
+            formData.append(CONFIG.entryIdBrowser, navegador);
+            
+            // Usando sendBeacon como alternativa mais confiável
+            if (navigator.sendBeacon) {
+                navigator.sendBeacon(CONFIG.googleFormUrl, formData);
+            } else {
+                await fetch(CONFIG.googleFormUrl, {
                     method: 'POST',
                     mode: 'no-cors',
                     body: formData
                 });
-                
-                console.log("Rastreio enviado:", codInput, navegador);
             }
-        } catch (error) {
-            console.error("Erro no rastreio:", error);
-        }
-
-        // TENTATIVA DE COMPARTILHAMENTO
-        try {
-            const imgElement = document.getElementById('fotoProduto');
-            const response = await fetch(imgElement.src);
-            const blob = await response.blob();
             
-            if (blob.type.startsWith('image/')) {
-                const file = new File([blob], 'oferta.png', { type: 'image/png' });
-
-                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({
-                        files: [file],
-                        text: textoDaOferta
-                    });
-                    setLoading(false);
-                    return;
-                } else {
-                    throw new Error('Web Share não suporta arquivos');
-                }
-            } else {
-                throw new Error('Arquivo não é imagem válida');
-            }
-        } catch (error) {
-            console.log("Usando fallback do WhatsApp:", error);
-            const msgZap = encodeURIComponent(textoDaOferta);
-            window.open(`https://wa.me/?text=${msgZap}`, '_blank');
+            console.log("📊 Rastreio enviado:", { 
+                codigo: codInput, 
+                navegador: navegador
+            });
         }
-        
-        setLoading(false);
+    } catch (error) {
+        console.error("❌ Erro no rastreio:", error);
     }
 
-    // Adicionar efeito de brilho no botão principal a cada 3 segundos
-    setInterval(() => {
-        const btn = document.getElementById('btnEnviar');
-        btn.classList.add('glow');
-        setTimeout(() => {
-            btn.classList.remove('glow');
-        }, 1000);
-    }, 3000);
+    // TENTATIVA DE COMPARTILHAMENTO
+    try {
+        const imgElement = document.getElementById('fotoProduto');
+        const response = await fetch(imgElement.src);
+        const blob = await response.blob();
+        
+        if (blob.type.startsWith('image/')) {
+            const file = new File([blob], 'oferta.png', { type: 'image/png' });
+
+            // Tenta compartilhar com imagem
+            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    text: textoDaOferta
+                });
+                setLoading(false);
+                return;
+            } else {
+                throw new Error('Web Share não suporta arquivos');
+            }
+        } else {
+            throw new Error('Arquivo não é imagem válida');
+        }
+    } catch (error) {
+        console.log("📱 Usando fallback do WhatsApp:", error.message);
+        // Fallback: Abre o WhatsApp apenas com texto
+        const msgZap = encodeURIComponent(textoDaOferta);
+        window.open(`https://wa.me/?text=${msgZap}`, '_blank');
+    }
+    
+    setLoading(false);
+}
+
+// Adicionar efeito de brilho no botão principal a cada 3 segundos
+setInterval(() => {
+    const btn = document.getElementById('btnEnviar');
+    btn.classList.add('glow');
+    setTimeout(() => {
+        btn.classList.remove('glow');
+    }, 1000);
+}, 3000);
 </script>
 
 </body>
