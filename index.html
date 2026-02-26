@@ -39,37 +39,57 @@
 </div>
 
 <script>
+    // --- CONFIGURAÇÃO DE RASTREIO ---
+    const GOOGLE_FORM_URL = "https://forms.gle/cvZWrWXaKtRRqD4h8"; 
+    const ENTRY_ID_CODIGO = "entry.2003110990"; // ID da pergunta do Código
+    const ENTRY_ID_BROWSER = "entry.200360405"; // ID da pergunta do Navegador
+
+    // Função para identificar o navegador de forma simples
+    function getBrowserName() {
+        const ua = navigator.userAgent;
+        if (ua.includes("SamsungBrowser")) return "Samsung Internet";
+        if (ua.includes("Chrome") && !ua.includes("Edg")) return "Chrome";
+        if (ua.includes("Safari") && !ua.includes("Chrome")) return "Safari";
+        if (ua.includes("Edg")) return "Edge";
+        return "Outro/Webview";
+    }
+
     async function enviar() {
-        const cod = document.getElementById('cod').value.trim();
-        if(!cod) { alert("Por favor, digite o código do vendedor!"); return; }
+        const codInput = document.getElementById('cod').value.trim().toUpperCase();
+        if(!codInput) { alert("Por favor, digite o código!"); return; }
 
+        const navegador = getBrowserName();
+
+        // Links da Martinello
         const urlProduto = "https://www.martinello.com.br/caixa-de-som-jbl-boombox-4-bluetooth-preto-80878";
-        const linkFinal = "https://www.martinello.com.br/parceiros/" + cod + "?redir=" + urlProduto;
-
+        const linkFinal = `https://www.martinello.com.br/parceiros/${codInput}?redir=${urlProduto}`;
         const textoDaOferta = `🔥 Oferta Especial – Super Big Friday Martinello! 🔥\n\nA Caixa de Som JBL Boombox chegou com um precinho imperdível!\n\n👉 Compre aqui: ${linkFinal}`;
 
-        // BUSCAR A IMAGEM QUE VOCÊ SUBIU NO GITHUB
-        const imageElement = document.querySelector('img');
-        const imageUrl = imageElement.src;
+        // RASTREIO INVISÍVEL (Envia Código e Navegador)
+        if(GOOGLE_FORM_URL.includes("http")) {
+            const urlRastreio = `${GOOGLE_FORM_URL}?${ENTRY_ID_CODIGO}=${codInput}&${ENTRY_ID_BROWSER}=${navegador}`;
+            fetch(urlRastreio, { mode: 'no-cors' });
+        }
 
+        // TENTATIVA DE COMPARTILHAMENTO (IMAGEM + TEXTO)
         try {
-            const response = await fetch(imageUrl);
+            const imgElement = document.getElementById('fotoProduto');
+            const response = await fetch(imgElement.src);
             const blob = await response.blob();
-            const file = new File([blob], 'oferta.png', { type: blob.type });
+            const file = new File([blob], 'oferta.png', { type: 'image/png' });
 
-            // Tenta compartilhar pelo sistema do celular (Foto + Texto)
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            if (navigator.share && navigator.canShare({ files: [file] })) {
                 await navigator.share({
                     files: [file],
                     text: textoDaOferta
                 });
             } else {
-                // Caso o navegador seja antigo, envia só o texto como antes
-                window.location.href = "https://wa.me/?text=" + window.encodeURIComponent(textoDaOferta);
+                throw new Error('Incompatível');
             }
-        } catch (err) {
-            // Se der erro na imagem, envia só o texto para não travar
-            window.location.href = "https://wa.me/?text=" + window.encodeURIComponent(textoDaOferta);
+        } catch (error) {
+            // FALLBACK: Abre o WhatsApp apenas com texto
+            const msgZap = encodeURIComponent(textoDaOferta);
+            window.location.href = `https://wa.me/?text=${msgZap}`;
         }
     }
 </script>
