@@ -472,10 +472,15 @@ function toggleDarkMode() {
     }
 }
 
-// Função melhorada para identificar o navegador
+// Função melhorada para identificar o navegador (CORRIGIDO)
 function getBrowserName() {
     const ua = navigator.userAgent;
     const platform = navigator.platform;
+    
+    // Detecção específica para Samsung Internet (DEVE VIR ANTES DO CHROME)
+    if (ua.includes('SamsungBrowser')) {
+        return 'Samsung Internet';
+    }
     
     // Detecção específica para iPhone/iPad
     const isIOS = /iPad|iPhone|iPod/.test(ua) || (platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -491,7 +496,6 @@ function getBrowserName() {
     // Detecção para Android
     if (ua.includes('Android')) {
         if (ua.includes('Chrome') && !ua.includes('Edg')) return 'Chrome (Android)';
-        if (ua.includes('SamsungBrowser')) return 'Samsung Internet (Android)';
         if (ua.includes('Firefox')) return 'Firefox (Android)';
         if (ua.includes('Edg')) return 'Edge (Android)';
         return 'Navegador Padrão (Android)';
@@ -505,6 +509,7 @@ function getBrowserName() {
     if (ua.includes('OPR') || ua.includes('Opera')) return 'Opera (Desktop)';
     
     return 'Outro/Desconhecido';
+}
 }
 
 // Função para mostrar/ocultar loading
