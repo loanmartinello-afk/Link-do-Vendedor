@@ -83,12 +83,7 @@
             height: 60px; /* Altura fixa */
             width: auto; /* Largura automática para manter proporção */
             object-fit: contain;
-            filter: brightness(0) invert(1); /* Torna a logo branca */
             transition: 0.3s;
-        }
-
-        body.dark-mode .logo-image {
-            filter: brightness(0) invert(0.9); /* Ajuste para dark mode */
         }
 
         .dark-mode-toggle {
@@ -113,80 +108,61 @@
             transform: rotate(180deg);
         }
 
-        /* Container principal com layout de duas colunas */
-        .main-container {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 30px;
-            gap: 40px;
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
-        }
+       /* Container principal - centralizado */
+.main-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+    min-height: calc(100vh - 100px); /* Ajuste conforme altura do header */
+}
 
-        /* Área da mascote (lado esquerdo) */
-        .mascot-area {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            max-width: 400px;
-        }
+/* Mascote como elemento decorativo de fundo */
+.mascot {
+    position: absolute;
+    left: 5%;
+    bottom: 5%;
+    width: 300px;
+    height: 300px;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.15; /* Mais sutil como fundo */
+    pointer-events: none;
+    z-index: 1;
+    transition: 0.3s;
+}
 
-        /* Mascote ampliada */
-        .mascot {
-            width: 100%;
-            max-width: 350px;
-            height: auto;
-            aspect-ratio: 1/1;
-            background-size: contain;
-            background-position: center;
-            background-repeat: no-repeat;
-            filter: drop-shadow(0 10px 20px rgba(208, 37, 42, 0.2));
-            animation: float 3s ease-in-out infinite;
-        }
+/* Versão para dark mode */
+body.dark-mode .mascot {
+    opacity: 0.1;
+}
 
-        /* Animação de flutuação para a mascote */
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-15px);
-            }
-        }
+/* Card principal com z-index maior que a mascote */
+.card {
+    background: var(--card-light);
+    padding: 30px 25px;
+    border-radius: 30px;
+    max-width: 450px;
+    width: 100%;
+    margin: 20px auto;
+    box-shadow: 0 20px 40px rgba(208, 37, 42, 0.15);
+    position: relative;
+    z-index: 10; /* Maior que a mascote */
+    animation: slideUp 0.5s ease;
+    border: 1px solid rgba(208, 37, 42, 0.1);
+}
 
-        /* Área do card (lado direito) */
-        .card-area {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            max-width: 450px;
-        }
-
-        /* Card principal */
-        .card {
-            background: var(--card-light);
-            padding: 30px 25px;
-            border-radius: 30px;
-            width: 100%;
-            box-shadow: 0 20px 40px rgba(208, 37, 42, 0.15);
-            animation: slideUp 0.5s ease;
-            border: 1px solid rgba(208, 37, 42, 0.1);
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+/* Ajuste para mobile */
+@media (max-width: 768px) {
+    .mascot {
+        width: 200px;
+        height: 200px;
+        opacity: 0.1;
+    }
+}
 
         /* Título principal */
         h2 { 
@@ -447,33 +423,29 @@
     </button>
 </header>
 
-<!-- Container principal com duas colunas -->
+<!-- Container principal com card centralizado -->
 <div class="main-container">
-    <!-- Área da mascote (lado esquerdo) -->
-    <div class="mascot-area">
-        <div class="mascot" style="background-image: url('mascote.png');"></div>
+    <!-- Card principal -->
+    <div class="card">
+        <h2>DISPARO EM ANDAMENTO!</h2>
+        
+        <img id="fotoProduto" class="product-image" src="produto.png" alt="Imagem do Produto">
+        
+        <div class="input-group">
+            <i class="fas fa-tag input-icon"></i>
+            <input type="text" id="cod" placeholder="DIGITE SEU CÓDIGO">
+        </div>
+        
+        <button class="btn-primary" onclick="enviar()" id="btnEnviar">
+            <span class="btn-text">GERAR E ENVIAR NO WHATSAPP</span>
+        </button>
     </div>
 
-    <!-- Área do card (lado direito) -->
-    <div class="card-area">
-        <div class="card">
-            <h2>DISPARO EM ANDAMENTO!</h2>
-            
-            <img id="fotoProduto" class="product-image" src="produto.png" alt="Imagem do Produto">
-            
-            <div class="input-group">
-                <i class="fas fa-tag input-icon"></i>
-                <input type="text" id="cod" placeholder="DIGITE SEU CÓDIGO">
-            </div>
-            
-            <button class="btn-primary" onclick="enviar()" id="btnEnviar">
-                <span class="btn-text">GERAR E ENVIAR NO WHATSAPP</span>
-            </button>
-        </div>
-    </div>
+    <!-- Mascote como elemento decorativo (fora do fluxo) -->
+    <div class="mascot" style="background-image: url('mascote.png');"></div>
 </div>
 
-<!-- Botão flutuante do WhatsApp (agora na direita) -->
+<!-- Botão flutuante do WhatsApp -->
 <a href="https://wa.me/556598115091?text=Olá!%20Preciso%20de%20ajuda%20com%20o%20Portal%20do%20Vendedor%20Martinello" 
    class="whatsapp-float" 
    target="_blank"
