@@ -69,7 +69,7 @@
         /* Cabeçalho simplificado */
         .header {
             background: var(--primary-color);
-            padding: 25px 20px; /* Aumentei o padding */
+            padding: 25px 20px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -80,7 +80,7 @@
 
         /* Logo aumentada */
         .logo-image {
-            height: 100px; /* Aumentei de 60px para 80px */
+            height: 100px;
             width: auto;
             object-fit: contain;
             transition: 0.3s;
@@ -116,7 +116,7 @@
             justify-content: center;
             padding: 20px;
             position: relative;
-            min-height: calc(100vh - 130px); /* Ajustado para a altura maior do header */
+            min-height: calc(100vh - 130px);
         }
 
         /* Card principal */
@@ -337,7 +337,7 @@
         /* Responsividade */
         @media (max-width: 768px) {
             .logo-image {
-                height: 90px; /* Reduz um pouco em mobile */
+                height: 90px;
             }
             
             h2 {
@@ -360,7 +360,7 @@
 
         @media (max-width: 480px) {
             .logo-image {
-                height: 80px; /* Reduz mais em celular pequeno */
+                height: 80px;
             }
             
             h2 {
@@ -422,7 +422,7 @@
 </a>
 
 <script>
-   // ============================================
+// ============================================
 // CONFIGURAÇÕES - COLE SEU TEXTO AQUI
 // ============================================
 
@@ -456,6 +456,23 @@ A Caixa de Som JBL Boombox chegou com um precinho imperdível!
 };
 
 // ============================================
+// OTIMIZAÇÕES - PREVENIR ERROS
+// ============================================
+
+let enviando = false;
+const TIMEOUT_MS = 5000;
+
+async function validarImagem(src) {
+    if (!src || src === '') return false;
+    try {
+        const response = await fetch(src, { method: 'HEAD' });
+        return response.ok;
+    } catch {
+        return false;
+    }
+}
+
+// ============================================
 // FUNÇÕES (NÃO MEXER DAQUI PARA BAIXO)
 // ============================================
 
@@ -477,7 +494,7 @@ function getBrowserName() {
     const ua = navigator.userAgent;
     const platform = navigator.platform;
     
-    // Detecção específica para Samsung Internet (DEVE VIR ANTES DO CHROME)
+    // Detecção específica para Samsung Internet
     if (ua.includes('SamsungBrowser')) {
         return 'Samsung Internet';
     }
@@ -510,7 +527,6 @@ function getBrowserName() {
     
     return 'Outro/Desconhecido';
 }
-}
 
 // Função para mostrar/ocultar loading
 function setLoading(isLoading) {
@@ -526,92 +542,122 @@ function setLoading(isLoading) {
     }
 }
 
-// Função principal
+// Função principal com otimizações
 async function enviar() {
-    const codInput = document.getElementById('cod').value.trim().toUpperCase();
-    if(!codInput) { 
-        alert("Por favor, digite o código!"); 
-        return; 
+    // Prevenir múltiplos cliques
+    if (enviando) {
+        console.log("⏳ Já está processando, aguarde...");
+        return;
     }
-
-    setLoading(true);
-
-    const navegador = getBrowserName();
+    enviando = true;
     
-    // Monta o link final com o código do vendedor
-    const linkFinal = `https://www.martinello.com.br/parceiros/${codInput}?redir=${encodeURIComponent(CONFIG.urlProduto)}`;
-    
-    // Substitui [LINK] e [CODIGO] no texto
-    const textoDaOferta = CONFIG.textoOferta
-        .replace('[LINK]', linkFinal)
-        .replace('[CODIGO]', codInput);
-
- // RASTREIO INVISÍVEL - APENAS UM MÉTODO (SEM DUPLICAÇÃO)
-try {
-    if(CONFIG.googleFormUrl.includes("formResponse")) {
-        const formData = new FormData();
-        formData.append(CONFIG.entryIdCodigo, codInput);
-        formData.append(CONFIG.entryIdBrowser, navegador);
-        
-        console.log("📤 Enviando rastreio:", { 
-            codigo: codInput, 
-            navegador: navegador
-        });
-        
-        // ÚNICO ENVIO - apenas fetch (recomendado)
-        fetch(CONFIG.googleFormUrl, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: formData
-        }).catch(error => {
-            console.error("❌ Erro no rastreio:", error);
-        });
-        
-    }
-} catch (error) {
-    console.error("❌ Erro crítico no rastreio:", error);
-}
-
-    // TENTATIVA DE COMPARTILHAMENTO
     try {
-        const imgElement = document.getElementById('fotoProduto');
-        const response = await fetch(imgElement.src);
-        const blob = await response.blob();
-        
-        if (blob.type.startsWith('image/')) {
-            const file = new File([blob], 'oferta.png', { type: 'image/png' });
-
-            // Tenta compartilhar com imagem
-            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                await navigator.share({
-                    files: [file],
-                    text: textoDaOferta
-                });
-                setLoading(false);
-                return;
-            } else {
-                throw new Error('Web Share não suporta arquivos');
-            }
-        } else {
-            throw new Error('Arquivo não é imagem válida');
+        const codInput = document.getElementById('cod').value.trim().toUpperCase();
+        if(!codInput) { 
+            alert("Por favor, digite o código!"); 
+            return; 
         }
-    } catch (error) {
-        console.log("📱 Usando fallback do WhatsApp:", error.message);
-        // Fallback: Abre o WhatsApp apenas com texto
-        const msgZap = encodeURIComponent(textoDaOferta);
-        window.open(`https://wa.me/?text=${msgZap}`, '_blank');
+
+        setLoading(true);
+
+        const navegador = getBrowserName();
+        
+        // Monta o link final com o código do vendedor
+        const linkFinal = `https://www.martinello.com.br/parceiros/${codInput}?redir=${encodeURIComponent(CONFIG.urlProduto)}`;
+        
+        // Substitui [LINK] e [CODIGO] no texto
+        const textoDaOferta = CONFIG.textoOferta
+            .replace('[LINK]', linkFinal)
+            .replace('[CODIGO]', codInput);
+
+        // RASTREIO INVISÍVEL COM TIMEOUT
+        try {
+            if(CONFIG.googleFormUrl.includes("formResponse")) {
+                const formData = new FormData();
+                formData.append(CONFIG.entryIdCodigo, codInput);
+                formData.append(CONFIG.entryIdBrowser, navegador);
+                
+                console.log("📤 Enviando rastreio:", { 
+                    codigo: codInput, 
+                    navegador: navegador
+                });
+                
+                // Adiciona timeout para não travar
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+                
+                await fetch(CONFIG.googleFormUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: formData,
+                    signal: controller.signal
+                }).catch(error => {
+                    if (error.name === 'AbortError') {
+                        console.warn("⚠️ Rastreio timeout, mas continuando...");
+                    } else {
+                        console.error("❌ Erro no rastreio:", error);
+                    }
+                }).finally(() => clearTimeout(timeoutId));
+                
+                console.log("✅ Rastreio processado");
+            }
+        } catch (error) {
+            console.error("❌ Erro crítico no rastreio:", error);
+        }
+
+        // TENTATIVA DE COMPARTILHAMENTO COM VALIDAÇÃO
+        try {
+            const imgElement = document.getElementById('fotoProduto');
+            
+            // Valida se a imagem existe
+            const imagemValida = await validarImagem(imgElement.src);
+            if (!imagemValida) {
+                throw new Error('Imagem não encontrada ou inválida');
+            }
+            
+            const response = await fetch(imgElement.src);
+            const blob = await response.blob();
+            
+            if (blob.type.startsWith('image/')) {
+                const file = new File([blob], 'oferta.png', { type: 'image/png' });
+
+                // Tenta compartilhar com imagem
+                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        text: textoDaOferta
+                    });
+                    console.log("✅ Compartilhamento realizado com sucesso");
+                    setLoading(false);
+                    return;
+                } else {
+                    throw new Error('Web Share não suporta arquivos');
+                }
+            } else {
+                throw new Error('Arquivo não é imagem válida');
+            }
+        } catch (error) {
+            console.log("📱 Usando fallback do WhatsApp:", error.message);
+            // Fallback: Abre o WhatsApp apenas com texto
+            const msgZap = encodeURIComponent(textoDaOferta);
+            window.open(`https://wa.me/?text=${msgZap}`, '_blank');
+        }
+        
+        setLoading(false);
+    } finally {
+        enviando = false;
     }
-    
-    setLoading(false);
 }
 
 // Adicionar efeito de brilho no botão principal a cada 3 segundos
 setInterval(() => {
     const btn = document.getElementById('btnEnviar');
-    btn.classList.add('glow');
-    setTimeout(() => {
-        btn.classList.remove('glow');
-    }, 1000);
+    if (btn && !btn.disabled) {
+        btn.classList.add('glow');
+        setTimeout(() => {
+            btn.classList.remove('glow');
+        }, 1000);
+    }
 }, 3000);
 </script>
 
