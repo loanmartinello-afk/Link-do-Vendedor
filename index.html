@@ -2,8 +2,6 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal do Vendedor</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
@@ -12,12 +10,11 @@
         body { font-family: sans-serif; text-align: center; padding: 20px; background: #f4f4f4; }
         .card { background: white; padding: 20px; border-radius: 15px; max-width: 400px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         
-        /* Aplicando a fonte Bebas Neue Bold no Título */
         h2 { 
             font-family: 'Bebas Neue', sans-serif; 
             font-weight: bold; 
             font-size: 40px; 
-            color: #e31d1a; /* Cor de destaque (opcional) */
+            color: #e31d1a;
             margin-bottom: 10px;
             letter-spacing: 2px;
         }
@@ -32,7 +29,7 @@
 
 <div class="card">
     <h2>OFERTA!!</h2>
-    <img src="produto.png" alt="Imagem do Produto">
+    <img id="fotoProduto" src="produto.png" alt="Imagem do Produto">
     
     <input type="text" id="cod" placeholder="DIGITE SEU CÓDIGO">
     <button onclick="enviar()">GERAR E ENVIAR NO WHATSAPP</button>
@@ -40,56 +37,86 @@
 
 <script>
     // --- CONFIGURAÇÃO DE RASTREIO ---
-    const GOOGLE_FORM_URL = "https://forms.gle/cvZWrWXaKtRRqD4h8"; 
+    // IMPORTANTE: Use o link COMPLETO do Google Forms, não o encurtado
+    const GOOGLE_FORM_URL = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSfdheHBbGMCLIXXAeM0b8rTbpextHznj6BDS6lKGLN9ZMjd4g/formResponse";
     const ENTRY_ID_CODIGO = "entry.2003110990"; // ID da pergunta do Código
     const ENTRY_ID_BROWSER = "entry.200360405"; // ID da pergunta do Navegador
 
-    // Função para identificar o navegador de forma simples
+    // Função para identificar o navegador
     function getBrowserName() {
         const ua = navigator.userAgent;
         if (ua.includes("SamsungBrowser")) return "Samsung Internet";
         if (ua.includes("Chrome") && !ua.includes("Edg")) return "Chrome";
-        if (ua.includes("Safari") && !ua.includes("Chrome")) return "Safari";
+        if (ua.includes("Safari") && !ua.includes("Chrome") && !ua.includes("Edg")) return "Safari";
         if (ua.includes("Edg")) return "Edge";
-        return "Outro/Webview";
+        if (ua.includes("Firefox")) return "Firefox";
+        if (ua.includes("OPR") || ua.includes("Opera")) return "Opera";
+        return "Outro/Desconhecido";
     }
 
     async function enviar() {
         const codInput = document.getElementById('cod').value.trim().toUpperCase();
-        if(!codInput) { alert("Por favor, digite o código!"); return; }
-
-        const navegador = getBrowserName();
-
-        // Links da Martinello
-        const urlProduto = "https://www.martinello.com.br/caixa-de-som-jbl-boombox-4-bluetooth-preto-80878";
-        const linkFinal = `https://www.martinello.com.br/parceiros/${codInput}?redir=${urlProduto}`;
-        const textoDaOferta = `🔥 Oferta Especial – Super Big Friday Martinello! 🔥\n\nA Caixa de Som JBL Boombox chegou com um precinho imperdível!\n\n👉 Compre aqui: ${linkFinal}`;
-
-        // RASTREIO INVISÍVEL (Envia Código e Navegador)
-        if(GOOGLE_FORM_URL.includes("http")) {
-            const urlRastreio = `${GOOGLE_FORM_URL}?${ENTRY_ID_CODIGO}=${codInput}&${ENTRY_ID_BROWSER}=${navegador}`;
-            fetch(urlRastreio, { mode: 'no-cors' });
+        if(!codInput) { 
+            alert("Por favor, digite o código!"); 
+            return; 
         }
 
-        // TENTATIVA DE COMPARTILHAMENTO (IMAGEM + TEXTO)
+        const navegador = getBrowserName();
+        
+        // Links da Martinello
+        const urlProduto = "https://www.martinello.com.br/caixa-de-som-jbl-boombox-4-bluetooth-preto-80878";
+        const linkFinal = `https://www.martinello.com.br/parceiros/${codInput}?redir=${encodeURIComponent(urlProduto)}`;
+        const textoDaOferta = `🔥 Oferta Especial – Super Big Friday Martinello! 🔥\n\nA Caixa de Som JBL Boombox chegou com um precinho imperdível!\n\n👉 Compre aqui: ${linkFinal}`;
+
+        // RASTREIO INVISÍVEL
+        try {
+            // Envia dados para o Google Forms
+            if(GOOGLE_FORM_URL.includes("formResponse")) {
+                const formData = new FormData();
+                formData.append(ENTRY_ID_CODIGO, codInput);
+                formData.append(ENTRY_ID_BROWSER, navegador);
+                
+                // Envia usando fetch com no-cors (não vamos esperar resposta)
+                fetch(GOOGLE_FORM_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: formData
+                });
+                
+                console.log("Rastreio enviado:", codInput, navegador);
+            }
+        } catch (error) {
+            console.error("Erro no rastreio:", error);
+        }
+
+        // TENTATIVA DE COMPARTILHAMENTO
         try {
             const imgElement = document.getElementById('fotoProduto');
             const response = await fetch(imgElement.src);
             const blob = await response.blob();
-            const file = new File([blob], 'oferta.png', { type: 'image/png' });
+            
+            // Verifica se é um arquivo de imagem válido
+            if (blob.type.startsWith('image/')) {
+                const file = new File([blob], 'oferta.png', { type: 'image/png' });
 
-            if (navigator.share && navigator.canShare({ files: [file] })) {
-                await navigator.share({
-                    files: [file],
-                    text: textoDaOferta
-                });
+                // Tenta compartilhar com imagem se o navegador suportar
+                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        text: textoDaOferta
+                    });
+                    return; // Sucesso!
+                } else {
+                    throw new Error('Web Share não suporta arquivos');
+                }
             } else {
-                throw new Error('Incompatível');
+                throw new Error('Arquivo não é imagem válida');
             }
         } catch (error) {
+            console.log("Usando fallback do WhatsApp:", error);
             // FALLBACK: Abre o WhatsApp apenas com texto
             const msgZap = encodeURIComponent(textoDaOferta);
-            window.location.href = `https://wa.me/?text=${msgZap}`;
+            window.open(`https://wa.me/?text=${msgZap}`, '_blank');
         }
     }
 </script>
