@@ -69,19 +69,19 @@
         /* Cabeçalho simplificado */
         .header {
             background: var(--primary-color);
-            padding: 20px;
+            padding: 25px 20px; /* Aumentei o padding */
             display: flex;
             align-items: center;
-            justify-content: center; /* Centraliza o conteúdo */
+            justify-content: center;
             box-shadow: 0 4px 15px rgba(208, 37, 42, 0.3);
             position: relative;
             z-index: 100;
         }
 
-        /* Logo sem círculo, apenas a imagem */
+        /* Logo aumentada */
         .logo-image {
-            height: 60px; /* Altura fixa */
-            width: auto; /* Largura automática para manter proporção */
+            height: 80px; /* Aumentei de 60px para 80px */
+            width: auto;
             object-fit: contain;
             transition: 0.3s;
         }
@@ -108,61 +108,42 @@
             transform: rotate(180deg);
         }
 
-       /* Container principal - centralizado */
-.main-container {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    position: relative;
-    min-height: calc(100vh - 100px); /* Ajuste conforme altura do header */
-}
+        /* Container principal - centralizado */
+        .main-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            min-height: calc(100vh - 130px); /* Ajustado para a altura maior do header */
+        }
 
-/* Mascote como elemento decorativo de fundo */
-.mascot {
-    position: absolute;
-    left: 5%;
-    bottom: 5%;
-    width: 300px;
-    height: 300px;
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: 0.15; /* Mais sutil como fundo */
-    pointer-events: none;
-    z-index: 1;
-    transition: 0.3s;
-}
+        /* Card principal */
+        .card {
+            background: var(--card-light);
+            padding: 30px 25px;
+            border-radius: 30px;
+            max-width: 450px;
+            width: 100%;
+            margin: 20px auto;
+            box-shadow: 0 20px 40px rgba(208, 37, 42, 0.15);
+            position: relative;
+            z-index: 10;
+            animation: slideUp 0.5s ease;
+            border: 1px solid rgba(208, 37, 42, 0.1);
+        }
 
-/* Versão para dark mode */
-body.dark-mode .mascot {
-    opacity: 0.1;
-}
-
-/* Card principal com z-index maior que a mascote */
-.card {
-    background: var(--card-light);
-    padding: 30px 25px;
-    border-radius: 30px;
-    max-width: 450px;
-    width: 100%;
-    margin: 20px auto;
-    box-shadow: 0 20px 40px rgba(208, 37, 42, 0.15);
-    position: relative;
-    z-index: 10; /* Maior que a mascote */
-    animation: slideUp 0.5s ease;
-    border: 1px solid rgba(208, 37, 42, 0.1);
-}
-
-/* Ajuste para mobile */
-@media (max-width: 768px) {
-    .mascot {
-        width: 200px;
-        height: 200px;
-        opacity: 0.1;
-    }
-}
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
         /* Título principal */
         h2 { 
@@ -291,7 +272,7 @@ body.dark-mode .mascot {
         .whatsapp-float {
             position: fixed;
             bottom: 30px;
-            right: 30px; /* Mudamos para a direita */
+            right: 30px;
             background: var(--whatsapp-color);
             color: white;
             width: 60px;
@@ -354,34 +335,13 @@ body.dark-mode .mascot {
         }
 
         /* Responsividade */
-        @media (max-width: 900px) {
-            .main-container {
-                flex-direction: column;
-                padding: 20px;
-                gap: 20px;
-            }
-
-            .mascot-area {
-                max-width: 250px;
-                order: -1; /* Mascote fica acima do card em mobile */
-            }
-
-            .mascot {
-                max-width: 200px;
-            }
-
-            .card-area {
-                width: 100%;
-            }
-
+        @media (max-width: 768px) {
             .logo-image {
-                height: 50px;
+                height: 60px; /* Reduz um pouco em mobile */
             }
-        }
-
-        @media (max-width: 480px) {
+            
             h2 {
-                font-size: 24px;
+                font-size: 28px;
             }
 
             .btn-primary {
@@ -395,6 +355,16 @@ body.dark-mode .mascot {
                 font-size: 25px;
                 bottom: 20px;
                 right: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo-image {
+                height: 50px; /* Reduz mais em celular pequeno */
+            }
+            
+            h2 {
+                font-size: 24px;
             }
         }
 
@@ -415,7 +385,7 @@ body.dark-mode .mascot {
 </head>
 <body>
 
-<!-- Cabeçalho simplificado com logo centralizada -->
+<!-- Cabeçalho com logo centralizada -->
 <header class="header">
     <img src="logo.png" alt="Logo Martinello" class="logo-image">
     <button class="dark-mode-toggle" onclick="toggleDarkMode()">
@@ -440,9 +410,6 @@ body.dark-mode .mascot {
             <span class="btn-text">GERAR E ENVIAR NO WHATSAPP</span>
         </button>
     </div>
-
-    <!-- Mascote como elemento decorativo (fora do fluxo) -->
-    <div class="mascot" style="background-image: url('mascote.png');"></div>
 </div>
 
 <!-- Botão flutuante do WhatsApp -->
